@@ -1,0 +1,78 @@
+services:
+  bedrock:
+    image: itzg/minecraft-bedrock-server:latest
+    container_name: minecraft-bedrock
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    ports:
+      - "19132:19132/udp"
+    environment:
+      # ============================================
+      # CONTAINER & SERVER CONFIGURATION
+      # ============================================
+
+      # Container Settings
+      EULA: "TRUE"
+      TZ: "America/New_York"
+      VERSION: "LATEST"
+      UID: ${UID}
+      GID: ${GID}
+      PACKAGE_BACKUP_KEEP: "2"
+
+      # Security & Access Control
+      ALLOW_LIST: "true"
+      ALLOW_LIST_USERS: ${ALLOW_LIST_USERS}
+      OPS: ${OPS}
+      ONLINE_MODE: "true"
+
+      # Network
+      ENABLE_LAN_VISIBILITY: "true"
+
+      # Performance
+      VIEW_DISTANCE: "10"
+      TICK_DISTANCE: "4"
+      MAX_PLAYERS: "6"
+
+      # Logging & Observability
+      CONTENT_LOG_FILE_ENABLED: "true"
+      CONTENT_LOG_LEVEL: "info"
+      CONTENT_LOG_CONSOLE_OUTPUT_ENABLED: "true"
+      EMIT_SERVER_TELEMETRY: "false"
+      ITEM_TRANSACTION_LOGGING_ENABLED: "true"
+
+      # ============================================
+      # GAME CONFIGURATION
+      # ============================================
+
+      # Server Identity
+      SERVER_NAME: ${SERVER_NAME}
+
+      # World Settings
+      LEVEL_NAME: ${LEVEL_NAME}
+      LEVEL_TYPE: "DEFAULT"
+      LEVEL_SEED: ${LEVEL_SEED}
+
+      # Gameplay Settings
+      GAMEMODE: "survival"
+      FORCE_GAMEMODE: "true"
+      DIFFICULTY: "easy"
+      ALLOW_CHEATS: "true"
+      PVP: "false"
+      ALLOW_NETHER: "true"
+      SPAWN_PROTECTION: "16"
+
+      # Player Management
+      PLAYER_IDLE_TIMEOUT: "30"
+      DEFAULT_PLAYER_PERMISSION_LEVEL: "member"
+    volumes:
+      - minecraft-data:/data
+      - ./init-gamerules.sh:/init-gamerules.sh:ro
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  minecraft-data:
