@@ -18,12 +18,10 @@ SPAWN_X=-69
 SPAWN_Y=64
 SPAWN_Z=42
 
-# ---- Move the starter area away from spawn ----
-# Offset along +X (east). Increase if you want it farther away.
-START_OFFSET_X=14
-START_X=$((SPAWN_X + START_OFFSET_X))
-START_Y=$SPAWN_Y
-START_Z=$SPAWN_Z
+# ---- Starter area coordinates (hardcoded) ----
+START_X=-84
+START_Y=66
+START_Z=66
 
 # Chest centered under the arch
 CHEST_X=$START_X
@@ -153,6 +151,8 @@ sleep 1
 # ---- Build colorful path (3-wide) from spawn to starter area along X ----
 echo "Building colorful path..."
 # Path runs from the edge of spawn pad to the edge of starter pad
+# NOTE: This path logic assumes the starter area is east (+X) of spawn.
+# With START_X now west of SPAWN_X, PATH_START_X may be > PATH_END_X and the path won't build.
 PATH_START_X=$((SPAWN_X + SPAWN_PAD_HALF_SIZE + 1))
 PATH_END_X=$((START_X - START_PAD_HALF_SIZE - 1))
 HALF_W=$((PATH_WIDTH / 2))
