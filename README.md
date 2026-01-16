@@ -66,13 +66,13 @@ All configuration is managed through environment variables. Sensitive values are
 
 | Variable | Value | Description |
 | --- | --- | --- |
-| `EULA` | `TRUE` | Accepts the [Minecraft EULA](https://minecraft.net/terms) **(required)** |
+| `EULA` **(required)** | `TRUE` | Accepts the [Minecraft EULA](https://minecraft.net/terms) |
 | `TZ` | `America/New_York` | Server timezone for logs and timestamps |
 | `VERSION` | `LATEST` | Auto-upgrades to the latest stable Bedrock server version |
 | `PACKAGE_BACKUP_KEEP` | `2` | Number of previous server version backups to retain |
 | `ALLOW_LIST` | `true` | Only players on the allowlist can join |
-| `ALLOW_LIST_USERS` | `.env` | Comma-separated list of `gamertag:xuid` pairs **(required)** |
-| `OPS` | `.env` | Comma-separated XUIDs of server operators **(required)** |
+| `ALLOW_LIST_USERS` **(required)** | `.env` | Comma-separated list of `gamertag:xuid` pairs |
+| `OPS` **(required)** | `.env` | Comma-separated XUIDs of server operators |
 | `ONLINE_MODE` | `true` | Requires Xbox Live authentication (recommended for security) |
 | `ENABLE_LAN_VISIBILITY` | `true` | Server appears in LAN game discovery |
 | `VIEW_DISTANCE` | `10` | Maximum view distance in chunks (client render distance) |
@@ -88,10 +88,10 @@ All configuration is managed through environment variables. Sensitive values are
 
 | Variable | Value | Description |
 | --- | --- | --- |
-| `SERVER_NAME` | `.env` | Server name shown in-game and LAN discovery **(required)** |
-| `LEVEL_NAME` | `.env` | World/save file name **(required)** |
+| `SERVER_NAME` **(required)** | `.env` | Server name shown in-game and LAN discovery |
+| `LEVEL_NAME` **(required)** | `.env` | World name |
 | `LEVEL_TYPE` | `DEFAULT` | World generation type (normal terrain) |
-| `LEVEL_SEED` | `.env` | World seed for terrain generation **(required)** |
+| `LEVEL_SEED` **(required)** | `.env` | World seed for terrain generation |
 | `GAMEMODE` | `survival` | Default game mode for new players |
 | `FORCE_GAMEMODE` | `true` | Enforces gamemode setting on existing players |
 | `DIFFICULTY` | `easy` | World difficulty level |
