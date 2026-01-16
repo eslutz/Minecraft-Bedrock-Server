@@ -38,7 +38,7 @@ services:
       CONTENT_LOG_LEVEL: "info"
       CONTENT_LOG_CONSOLE_OUTPUT_ENABLED: "true"
       EMIT_SERVER_TELEMETRY: "false"
-      ITEM_TRANSACTION_LOGGING_ENABLED: "true"
+      ITEM_TRANSACTION_LOGGING_ENABLED: "false"
 
       # ============================================
       # GAME CONFIGURATION
