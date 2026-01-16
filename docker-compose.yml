@@ -4,6 +4,7 @@ services:
     platform: linux/arm64
     container_name: minecraft-bedrock
     restart: unless-stopped
+    network_mode: host
     stdin_open: true
     tty: true
     deploy:
@@ -14,8 +15,6 @@ services:
         reservations:
           cpus: "2"
           memory: 4G
-    ports:
-      - "19132:19132/udp"
     environment:
       # ============================================
       # CONTAINER & SERVER CONFIGURATION
@@ -27,8 +26,6 @@ services:
       VERSION: "LATEST"
       PACKAGE_BACKUP_KEEP: "2"
       STOP_SERVER_BEFORE_UPGRADE: "true"
-      UID: ${UID}
-      GID: ${GID}
 
       # Security & Access Control
       ALLOW_LIST: "true"
@@ -47,7 +44,7 @@ services:
 
       # Logging & Observability
       CONTENT_LOG_FILE_ENABLED: "false"
-      CONTENT_LOG_LEVEL: "warn"
+      CONTENT_LOG_LEVEL: "warning"
       CONTENT_LOG_CONSOLE_OUTPUT_ENABLED: "true"
       EMIT_SERVER_TELEMETRY: "false"
       ITEM_TRANSACTION_LOGGING_ENABLED: "false"
@@ -82,10 +79,10 @@ services:
       retries: 3
       start_period: 60s
     post_start:
-      - command: ["/bin/bash", "/scripts/init-gamerules.sh"]
+      - command: ["/bin/bash", "/init-world.sh"]
     volumes:
       - minecraft-data:/data
-      - ./scripts/init-gamerules.sh:/scripts/init-gamerules.sh:ro
+      - ./init-world.sh:/init-world.sh:ro
     logging:
       driver: "json-file"
       options:

@@ -71,8 +71,6 @@ All configuration is managed through environment variables. Sensitive values are
 | `VERSION` | `LATEST` | Auto-upgrades to the latest stable Bedrock server version |
 | `PACKAGE_BACKUP_KEEP` | `2` | Number of previous server version backups to retain |
 | `STOP_SERVER_BEFORE_UPGRADE` | `true` | Gracefully stops the server before upgrading |
-| `UID` | `1000` | Host user ID for file ownership in the data volume |
-| `GID` | `1000` | Host group ID for file ownership in the data volume |
 | `ALLOW_LIST` | `true` | Only players on the allowlist can join |
 | `ALLOW_LIST_USERS` **(required)** | `.env` | Comma-separated list of `gamertag:xuid` pairs |
 | `OPS` **(required)** | `.env` | Comma-separated XUIDs of server operators |
@@ -83,10 +81,10 @@ All configuration is managed through environment variables. Sensitive values are
 | `MAX_PLAYERS` | `6` | Maximum concurrent players allowed |
 | `MAX_THREADS` | `4` | Caps server threads (match number of Pi 5 cores) |
 | `CONTENT_LOG_FILE_ENABLED` | `false` | Disables content log file to reduce write load |
-| `CONTENT_LOG_LEVEL` | `warn` | Log verbosity level |
+| `CONTENT_LOG_LEVEL` | `warning` | Log verbosity level |
 | `CONTENT_LOG_CONSOLE_OUTPUT_ENABLED` | `true` | Outputs content logs to console |
 | `EMIT_SERVER_TELEMETRY` | `false` | Disables telemetry data collection |
-| `ITEM_TRANSACTION_LOGGING_ENABLED` | `true` | Logs item movements and transactions |
+| `ITEM_TRANSACTION_LOGGING_ENABLED` | `false` | Logs item movements and transactions |
 
 ### Game Configuration
 
@@ -107,7 +105,7 @@ All configuration is managed through environment variables. Sensitive values are
 
 ## Game Rules
 
-Game rules are configured directly in [scripts/init-gamerules.sh](scripts/init-gamerules.sh) and automatically applied by a post-start hook when the server starts.
+Game rules are configured in [init-world.sh](init-world.sh) and applied automatically on first start. The init script also establishes the initial start point and more.
 
 | Rule | Value | Description |
 | --- | --- | --- |
