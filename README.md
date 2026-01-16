@@ -12,104 +12,12 @@ This project runs a Minecraft Bedrock Edition server using the [itzg/minecraft-b
 - **Custom world generation** with a specific seed
 - **Automatic updates** to the latest Bedrock server version
 
-## Environment Variables
-
-All configuration is managed through environment variables. Sensitive values are stored in `.env` (not committed to source control). Copy [.env.example](.env.example) to `.env` and configure your UID/GID (run `id`), allowlist users with XUIDs ([MCProfile](https://mcprofile.io/)), operators, and server/world settings.
-
-### Container & Server Configuration
-
-| Variable | Value | Description |
-| --- | --- | --- |
-| `EULA` | `TRUE` | Accepts the [Minecraft EULA](https://minecraft.net/terms) (required) |
-| `TZ` | `America/New_York` | Server timezone for logs and timestamps |
-| `VERSION` | `LATEST` | Auto-upgrades to the latest stable Bedrock server version |
-| `UID` | `.env` | User ID to run the server process (matches host user) |
-| `GID` | `.env` | Group ID to run the server process (matches host group) |
-| `PACKAGE_BACKUP_KEEP` | `2` | Number of previous server version backups to retain |
-| `ALLOW_LIST` | `true` | Only players on the allowlist can join |
-| `ALLOW_LIST_USERS` | `.env` | Comma-separated list of `gamertag:xuid` pairs |
-| `OPS` | `.env` | Comma-separated XUIDs of server operators |
-| `ONLINE_MODE` | `true` | Requires Xbox Live authentication (recommended for security) |
-| `ENABLE_LAN_VISIBILITY` | `true` | Server appears in LAN game discovery |
-| `VIEW_DISTANCE` | `10` | Maximum view distance in chunks (client render distance) |
-| `TICK_DISTANCE` | `4` | Simulation distance in chunks (affects mob AI, redstone, etc.) |
-| `MAX_PLAYERS` | `6` | Maximum concurrent players allowed |
-| `CONTENT_LOG_FILE_ENABLED` | `true` | Enables logging content errors to file |
-| `CONTENT_LOG_LEVEL` | `info` | Log verbosity level |
-| `CONTENT_LOG_CONSOLE_OUTPUT_ENABLED` | `true` | Outputs content logs to console |
-| `EMIT_SERVER_TELEMETRY` | `false` | Disables telemetry data collection |
-| `ITEM_TRANSACTION_LOGGING_ENABLED` | `true` | Logs item movements and transactions |
-
-### Game Configuration
-
-| Variable | Value | Description |
-| --- | --- | --- |
-| `SERVER_NAME` | `.env` | Server name shown in-game and LAN discovery |
-| `LEVEL_NAME` | `.env` | World/save file name |
-| `LEVEL_TYPE` | `DEFAULT` | World generation type (normal terrain) |
-| `LEVEL_SEED` | `.env` | World seed for terrain generation |
-| `GAMEMODE` | `survival` | Default game mode for new players |
-| `FORCE_GAMEMODE` | `true` | Enforces gamemode setting on existing players |
-| `DIFFICULTY` | `easy` | World difficulty level |
-| `ALLOW_CHEATS` | `true` | Enables command usage (required for game rules) |
-| `PVP` | `false` | Disables player vs player combat |
-| `ALLOW_NETHER` | `true` | Enables access to the Nether dimension |
-| `SPAWN_PROTECTION` | `16` | Radius of spawn area protected from non-ops |
-| `PLAYER_IDLE_TIMEOUT` | `30` | Minutes before idle players are kicked (0 = disabled) |
-| `DEFAULT_PLAYER_PERMISSION_LEVEL` | `member` | Default permission level for new players |
-
-## Game Rules
-
-The following game rules are configured via `/gamerule` commands:
-
-| Rule | Value | Description |
-| --- | --- | --- |
-| `keepInventory` | `true` | Players keep items on death |
-| `showCoordinates` | `true` | Shows player coordinates in-game |
-| `mobGriefing` | `false` | Prevents mobs from destroying blocks (creeper explosions, endermen, etc.) |
-
-### Automatic Initialization
-
-Game rules are **automatically applied** when a new world is created using the [init-gamerules.sh](init-gamerules.sh) initialization script. This script:
-
-- Runs once when the server first starts with a new world
-- Applies the game rules listed above
-- Creates a marker file to prevent re-running on subsequent restarts
-- Is mounted read-only into the container via `docker-compose.yml`
-
-**For a new world**: Change `LEVEL_NAME` in `.env` and restart — the script runs automatically.
-
-**To re-apply rules to an existing world**, delete the marker file:
-
-```bash
-docker exec minecraft-bedrock rm /data/worlds/<LEVEL_NAME>/.gamerules_initialized
-docker compose restart
-```
-
-### Manual Configuration
-
-You can also set game rules manually at any time. Connect to the server as an operator and run:
-
-```bash
-/gamerule keepInventory true
-/gamerule showCoordinates true
-/gamerule mobGriefing false
-```
-
-Or use the server console from the host:
-
-```bash
-docker exec minecraft-bedrock send-command gamerule keepInventory true
-docker exec minecraft-bedrock send-command gamerule showCoordinates true
-docker exec minecraft-bedrock send-command gamerule mobGriefing false
-```
-
-> [!NOTE]
-> `ALLOW_CHEATS` is enabled to support game rule commands.
-
 ## Getting Started
 
-**Prerequisites:** Docker Engine, Docker Compose V2
+*Prerequisites: Docker Engine, Docker Compose V2*
+
+Quickly start and manage the server locally using Docker Compose.
+
 
 ```bash
 # Start server
@@ -128,12 +36,20 @@ docker compose restart
 docker compose pull && docker compose up -d
 ```
 
+## Connect to the Server
+
+**LAN:** Server appears in **Play** → **Friends** → **LAN Games**
+
+**Internet:** Forward UDP port `19132` to server's local IP, share your public IP, and add players to `ALLOW_LIST_USERS` in `.env`
+
+> [!WARNING]
+> This is the minimal way to get online access working, not the safest. Consider a VPN or other network security options to reduce exposure.
+
 ## Running Server Commands
 
 ```bash
 # Send commands from host terminal (recommended)
-docker exec minecraft-bedrock send-command gamerule keepInventory true
-docker exec minecraft-bedrock send-command give <playername> diamond 64
+docker exec minecraft-bedrock send-command <command>
 
 # Or attach to console (Ctrl+P, Ctrl+Q to detach)
 docker attach minecraft-bedrock
@@ -142,11 +58,80 @@ docker attach minecraft-bedrock
 > [!WARNING]
 > Do not use Ctrl+C when attached - this will stop the server!
 
-## Connecting
+## Environment Variables
 
-**LAN:** Server appears in **Play** → **Friends** → **LAN Games**
+All configuration is managed through environment variables. Sensitive values are stored in `.env` (not committed to source control). Copy [.env.example](.env.example) to `.env` and configure allowlist users with XUIDs ([Xbox XUID Finder](https://cxkes.me/xbox/xuid)), operators, and server/world settings.
 
-**Internet:** Forward UDP port `19132` to server's local IP, share your public IP, and add players to `ALLOW_LIST_USERS` in `.env`
+### Container & Server Configuration
+
+| Variable | Value | Description |
+| --- | --- | --- |
+| `EULA` | `TRUE` | Accepts the [Minecraft EULA](https://minecraft.net/terms) **(required)** |
+| `TZ` | `America/New_York` | Server timezone for logs and timestamps |
+| `VERSION` | `LATEST` | Auto-upgrades to the latest stable Bedrock server version |
+| `PACKAGE_BACKUP_KEEP` | `2` | Number of previous server version backups to retain |
+| `ALLOW_LIST` | `true` | Only players on the allowlist can join |
+| `ALLOW_LIST_USERS` | `.env` | Comma-separated list of `gamertag:xuid` pairs **(required)** |
+| `OPS` | `.env` | Comma-separated XUIDs of server operators **(required)** |
+| `ONLINE_MODE` | `true` | Requires Xbox Live authentication (recommended for security) |
+| `ENABLE_LAN_VISIBILITY` | `true` | Server appears in LAN game discovery |
+| `VIEW_DISTANCE` | `10` | Maximum view distance in chunks (client render distance) |
+| `TICK_DISTANCE` | `4` | Simulation distance in chunks (affects mob AI, redstone, etc.) |
+| `MAX_PLAYERS` | `6` | Maximum concurrent players allowed |
+| `CONTENT_LOG_FILE_ENABLED` | `true` | Enables logging content errors to file |
+| `CONTENT_LOG_LEVEL` | `info` | Log verbosity level |
+| `CONTENT_LOG_CONSOLE_OUTPUT_ENABLED` | `true` | Outputs content logs to console |
+| `EMIT_SERVER_TELEMETRY` | `false` | Disables telemetry data collection |
+| `ITEM_TRANSACTION_LOGGING_ENABLED` | `true` | Logs item movements and transactions |
+
+### Game Configuration
+
+| Variable | Value | Description |
+| --- | --- | --- |
+| `SERVER_NAME` | `.env` | Server name shown in-game and LAN discovery **(required)** |
+| `LEVEL_NAME` | `.env` | World/save file name **(required)** |
+| `LEVEL_TYPE` | `DEFAULT` | World generation type (normal terrain) |
+| `LEVEL_SEED` | `.env` | World seed for terrain generation **(required)** |
+| `GAMEMODE` | `survival` | Default game mode for new players |
+| `FORCE_GAMEMODE` | `true` | Enforces gamemode setting on existing players |
+| `DIFFICULTY` | `easy` | World difficulty level |
+| `ALLOW_CHEATS` | `true` | Enables command usage (needed for some game rules) |
+| `ALLOW_NETHER` | `true` | Enables access to the Nether dimension |
+| `SPAWN_PROTECTION` | `16` | Radius of spawn area protected from non-ops |
+| `PLAYER_IDLE_TIMEOUT` | `30` | Minutes before idle players are kicked (0 = disabled) |
+| `DEFAULT_PLAYER_PERMISSION_LEVEL` | `member` | Default permission level for new players |
+
+## Game Rules
+
+Game rules are configured directly in [scripts/init-gamerules.sh](scripts/init-gamerules.sh) and automatically applied by a post-start hook when the server starts.
+
+> [!NOTE]
+> On Apple Silicon, the compose file sets `platform: linux/amd64` and mounts [scripts/send-command](scripts/send-command) to ensure `send-command` can find the Bedrock process when running under Rosetta.
+
+| Rule | Value | Description |
+| --- | --- | --- |
+| `keepInventory` | `true` | Players keep items on death |
+| `locatorbar` | `true` | Shows locator bar with coordinates and direction |
+| `mobGriefing` | `false` | Prevents mobs from destroying blocks (creeper explosions, endermen, etc.) |
+| `naturalRegeneration` | `true` | Health regenerates when hunger is full |
+| `pvp` | `false` | Disables player vs player combat |
+
+### Automatic Initialization
+
+Game rules are automatically applied when a new world is created using [scripts/init-gamerules.sh](scripts/init-gamerules.sh). For new worlds, simply change `LEVEL_NAME` in [.env](.env.example) and restart. To re-apply rules to an existing world delete the marker file and restart:
+
+```bash
+docker exec minecraft-bedrock rm /data/worlds/<LEVEL_NAME>/.gamerules_initialized
+docker compose restart
+```
+
+### Manual Configuration
+
+Set game rules manually at any time using the server console:
+
+```bash
+docker exec minecraft-bedrock send-command gamerule <rule> <value>
+```
 
 ## Backup & Data
 
@@ -159,5 +144,8 @@ docker run --rm -v minecraft-data:/data -v $(pwd):/backup alpine \
 
 ## Additional Resources
 
+- [itzg/minecraft-bedrock-server Documentation](https://github.com/itzg/docker-minecraft-bedrock-server)
 - [Minecraft Bedrock Server Documentation](https://learn.microsoft.com/en-us/minecraft/creator/documents/bedrockserver/getting-started?view=minecraft-bedrock-stable)
-- [Minecraft Wiki - Server Properties](https://minecraft.wiki/w/Server.properties#Option_keys)
+- [Bedrock Dedicated Server Properties](https://learn.microsoft.com/en-us/minecraft/creator/documents/bedrockserver/server-properties?view=minecraft-bedrock-stable)
+- [Introduction to Game Rules](https://learn.microsoft.com/en-us/minecraft/creator/documents/introductiontogamerules?view=minecraft-bedrock-stable)
+- [Game Rule Reference](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server/gamerule?view=minecraft-bedrock-stable)

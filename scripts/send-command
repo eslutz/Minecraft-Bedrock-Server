@@ -1,0 +1,28 @@
+#!/bin/bash
+
+if [[ $* ]]; then
+  proc=""
+
+  # Prefer finding the bedrock server by command line (works with Rosetta paths)
+  for p in /proc/[0-9]*; do
+    cmd=$(tr '\0' ' ' < "$p/cmdline" 2>/dev/null)
+    case "$cmd" in
+      *bedrock_server*)
+        proc="$p"
+        break
+        ;;
+    esac
+  done
+
+  # Fall back to original lookup by executable path
+  if [[ -z "$proc" ]]; then
+    proc=$(find /proc -mindepth 2 -maxdepth 2 -name exe \( -lname '/data/bedrock_server-*' -o -lname /usr/local/bin/box64 \) -printf '%h' -quit)
+  fi
+
+  if [[ $proc ]]; then
+    echo "$@" > "$proc/fd/0"
+  else
+    echo "ERROR: unable to find bedrock server process"
+    exit 2
+  fi
+fi

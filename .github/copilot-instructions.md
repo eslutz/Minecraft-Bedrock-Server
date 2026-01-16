@@ -10,7 +10,7 @@ This is a **Dockerized Minecraft Bedrock Edition server** designed for family/fr
 
 1. **Environment Variables** (`.env`) → Docker container → `server.properties` generation
 2. **Docker Compose** (`docker-compose.yml`) → Defines container, volumes, ports, logging
-3. **Initialization Scripts** (`init-gamerules.sh`) → One-time world setup on creation
+3. **Initialization Scripts** (`scripts/init-gamerules.sh`) → One-time world setup on creation
 4. **Persistent Data** (`minecraft-data` volume) → Worlds, configs, player data
 
 **Critical Pattern**: The `itzg` image auto-generates `/data/server.properties` from environment variables on startup. Never edit `data/server.properties` directly—changes will be overwritten. Always modify `.env` and restart the container.
@@ -32,15 +32,15 @@ This is a **Dockerized Minecraft Bedrock Edition server** designed for family/fr
 # 1. Edit .env (not docker-compose.yml environment section)
 vim .env
 
-# 2. Restart to apply (auto-regenerates server.properties)
-docker compose restart
+# 2. Recreate to apply new env values (auto-regenerates server.properties)
+docker compose up -d
 ```
 
 ### Game Rule Management
 
 **Automatic** (preferred for new worlds):
 
-- Script: `init-gamerules.sh` runs once on world creation
+- Script: `scripts/init-gamerules.sh` runs once on world creation
 - Marker: `/data/worlds/<LEVEL_NAME>/.gamerules_initialized` prevents re-runs
 - Re-apply: Delete marker + restart
 
@@ -93,7 +93,7 @@ Changing `LEVEL_NAME` in `.env` + restart creates a new world automatically. Old
 
 - **[docker-compose.yml](../docker-compose.yml)**: Single source of truth for container config, ports, volumes, environment variable mappings
 - **[.env](../.env)**: Actual values (gitignored); copy from `.env.example` to start
-- **[init-gamerules.sh](../init-gamerules.sh)**: World initialization logic; mounted read-only, uses `send-command` API
+- **[scripts/init-gamerules.sh](../scripts/init-gamerules.sh)**: World initialization logic; mounted read-only, uses `send-command` API
 - **[README.md](../README.md)**: User-facing documentation with complete environment variable reference
 
 ## Troubleshooting Patterns
@@ -101,8 +101,8 @@ Changing `LEVEL_NAME` in `.env` + restart creates a new world automatically. Old
 ### Config Not Applied
 
 **Symptom**: Changed `.env`, restarted, but server behavior unchanged.
-**Cause**: Forgot to restart container OR edited `data/server.properties` directly.
-**Fix**: `docker compose restart` OR revert `server.properties` changes and edit `.env` instead.
+**Cause**: Forgot to rebuild container OR edited `data/server.properties` directly.
+**Fix**: `docker compose up -d` OR revert `server.properties` changes and edit `.env` instead.
 
 ### Game Rules Reset
 
@@ -113,8 +113,8 @@ Changing `LEVEL_NAME` in `.env` + restart creates a new world automatically. Old
 ### Permission Denied Errors
 
 **Symptom**: Container can't write to `/data/` volume.
-**Cause**: `UID`/`GID` in `.env` don't match host user.
-**Fix**: Run `id` on host, update `.env`, recreate container.
+**Cause**: Volume ownership doesn't match container user.
+**Fix**: Recreate the volume or `chown` it using a one-off container.
 
 ## Integration Points
 
@@ -128,5 +128,5 @@ Changing `LEVEL_NAME` in `.env` + restart creates a new world automatically. Old
 When modifying this project:
 
 1. **Config changes**: Edit `.env` only, never `docker-compose.yml` environment values
-2. **New game rules**: Add to `init-gamerules.sh`, delete marker file for existing worlds
+2. **New game rules**: Add to `scripts/init-gamerules.sh`, delete marker file for existing worlds
 3. **Port changes**: Update both `ports:` in compose AND firewall/router forwarding
