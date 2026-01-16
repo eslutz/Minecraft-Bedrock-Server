@@ -112,7 +112,10 @@ if ! /usr/local/bin/mc-monitor status-bedrock --host 127.0.0.1 --port "$SERVER_P
   exit 1
 fi
 
-send_cmd() { /usr/local/bin/send-command "$@"; }
+send_cmd() {
+  echo "CMD: $*"
+  /usr/local/bin/send-command "$@"
+}
 
 # ---- Apply gamerules ----
 echo "Applying gamerules..."
