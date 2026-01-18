@@ -10,7 +10,7 @@ This is a **Dockerized Minecraft Bedrock Edition server** designed for family/fr
 
 1. **Environment Variables** (`.env`) → Docker container → `server.properties` generation
 2. **Docker Compose** (`docker-compose.yml`) → Defines container, volumes, ports, logging
-3. **Initialization Scripts** (`scripts/init-gamerules.sh`) → One-time world setup on creation
+3. **Initialization Scripts** (`init-world.sh`) → One-time world setup on creation
 4. **Persistent Data** (`minecraft-data` volume) → Worlds, configs, player data
 
 **Critical Pattern**: The `itzg` image auto-generates `/data/server.properties` from environment variables on startup. Never edit `data/server.properties` directly—changes will be overwritten. Always modify `.env` and restart the container.
@@ -40,8 +40,8 @@ docker compose up -d
 
 **Automatic** (preferred for new worlds):
 
-- Script: `scripts/init-gamerules.sh` runs once on world creation
-- Marker: `/data/worlds/<LEVEL_NAME>/.gamerules_initialized` prevents re-runs
+- Script: `init-world.sh` runs once on world creation
+- Marker: `/data/worlds/<LEVEL_NAME>/.world_initialized` prevents re-runs
 - Re-apply: Delete marker + restart
 
 **Manual** (for existing worlds):
@@ -93,7 +93,7 @@ Changing `LEVEL_NAME` in `.env` + restart creates a new world automatically. Old
 
 - **[docker-compose.yml](../docker-compose.yml)**: Single source of truth for container config, ports, volumes, environment variable mappings
 - **[.env](../.env)**: Actual values (gitignored); copy from `.env.example` to start
-- **[scripts/init-gamerules.sh](../scripts/init-gamerules.sh)**: World initialization logic; mounted read-only, uses `send-command` API
+- **[init-world.sh](../init-world.sh)**: World initialization logic; mounted read-only, uses `send-command` API
 - **[README.md](../README.md)**: User-facing documentation with complete environment variable reference
 
 ## Troubleshooting Patterns
@@ -108,7 +108,7 @@ Changing `LEVEL_NAME` in `.env` + restart creates a new world automatically. Old
 
 **Symptom**: Game rules revert to defaults.
 **Cause**: Marker file exists but was created before rules applied, OR script didn't run (container startup issue).
-**Fix**: Delete `/data/worlds/<LEVEL_NAME>/.gamerules_initialized`, ensure script is mounted, restart.
+**Fix**: Delete `/data/worlds/<LEVEL_NAME>/.world_initialized`, ensure script is mounted, restart.
 
 ### Permission Denied Errors
 
@@ -128,5 +128,5 @@ Changing `LEVEL_NAME` in `.env` + restart creates a new world automatically. Old
 When modifying this project:
 
 1. **Config changes**: Edit `.env` only, never `docker-compose.yml` environment values
-2. **New game rules**: Add to `scripts/init-gamerules.sh`, delete marker file for existing worlds
+2. **New game rules**: Add to `init-world.sh`, delete marker file for existing worlds
 3. **Port changes**: Update both `ports:` in compose AND firewall/router forwarding

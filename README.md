@@ -38,7 +38,7 @@ docker compose pull && docker compose up -d
 
 ## Connect to the Server
 
-**LAN:** Server appears in **Play** → **Friends** → **LAN Games**
+**LAN:** Server appears in **Play** → **Servers** → **Add Server**
 
 **Internet:** Forward UDP port `19132` to server's local IP, share your public IP, and add players to `ALLOW_LIST_USERS` in `.env`
 
@@ -105,7 +105,7 @@ All configuration is managed through environment variables. Sensitive values are
 
 ## Game Rules
 
-Game rules are configured in [init-world.sh](init-world.sh) and applied automatically on first start. The init script also establishes the initial start point and more.
+Game rules are configured in [init-world.sh](init-world.sh) and applied automatically on first world start. The init script also sets the world spawn point.
 
 | Rule | Value | Description |
 | --- | --- | --- |
@@ -117,10 +117,10 @@ Game rules are configured in [init-world.sh](init-world.sh) and applied automati
 
 ### Automatic Initialization
 
-Game rules are automatically applied when a new world is created using [scripts/init-gamerules.sh](scripts/init-gamerules.sh). For new worlds, simply change `LEVEL_NAME` in [.env](.env.example) and restart. To re-apply rules to an existing world delete the marker file and restart:
+Game rules are automatically applied when a new world is created using [init-world.sh](init-world.sh). For new worlds, simply change `LEVEL_NAME` in [.env](.env.example) and restart. To re-apply rules to an existing world delete the marker file and restart:
 
 ```bash
-docker exec minecraft-bedrock rm /data/worlds/<LEVEL_NAME>/.gamerules_initialized
+docker exec minecraft-bedrock rm /data/worlds/<LEVEL_NAME>/.world_initialized
 docker compose restart
 ```
 
